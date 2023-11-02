@@ -16,7 +16,7 @@ const { IgApiClient } = require('instagram-private-api');
 
 const app = express();
 
-app.set('trust proxy', true);
+app.set('trust proxy', process.env.RENDER_PROXY_IP);
 
 app.use(express.json());
 
