@@ -16,6 +16,8 @@ const { IgApiClient } = require('instagram-private-api');
 
 const app = express();
 
+app.set('trust proxy', true);
+
 app.use(express.json());
 
 
@@ -47,7 +49,7 @@ const limiter = rateLimit({
 });
 
 app.use(limiter);
-app.set('trust proxy', true);
+
 const ig = new IgApiClient();
 
 app.post('/login/:id', async (req, res) => {
