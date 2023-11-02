@@ -58,7 +58,7 @@ app.post('/login/:id', async (req, res) => {
   const loginUser = async (username, password) => {
     try {
       ig.state.generateDevice(username);
-      ig.state.proxyUrl = process.env.IG_PROXY;
+      ig.state.proxyUrl = process.env.RENDER_PROXY_IP;
 
       await ig.simulate.preLoginFlow();
       const loggedInUser = await ig.account.login(username, password);
