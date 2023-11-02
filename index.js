@@ -47,7 +47,7 @@ const limiter = rateLimit({
 });
 
 app.use(limiter);
-
+app.set('trust proxy', true);
 const ig = new IgApiClient();
 
 app.post('/login/:id', async (req, res) => {
