@@ -1,6 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 
+const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const cors = require('cors');
 var compression = require('compression')
@@ -31,6 +32,13 @@ app.use(helmet.contentSecurityPolicy({
       objectSrc: ["'none'"],
     },
   }));
+
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100, // Max requests
+  });
+
+app.use('/api/', limiter);
 
 
 const ig = new IgApiClient();
