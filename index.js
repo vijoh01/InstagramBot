@@ -16,8 +16,6 @@ const { IgApiClient } = require('instagram-private-api');
 
 const app = express();
 
-app.set('trust proxy', process.env.RENDER_PROXY_IP);
-
 app.use(express.json());
 
 
@@ -51,14 +49,14 @@ const limiter = rateLimit({
 app.use(limiter);
 
 const ig = new IgApiClient();
-
+let type;
 app.post('/login/:id', async (req, res) => {
-  const type = req.params.id;
-
+  type = req.params.id;
+  console.log(type);
   const loginUser = async (username, password) => {
     try {
       ig.state.generateDevice(username);
-      ig.state.proxyUrl = process.env.RENDER_PROXY_IP;
+      ig.state.proxyUrl = process.env.IG_PROXY;
 
       await ig.simulate.preLoginFlow();
       const loggedInUser = await ig.account.login(username, password);
@@ -77,8 +75,7 @@ app.post('/login/:id', async (req, res) => {
       await loginUser(process.env.FITNESS_USERNAME, process.env.FITNESS_PASSWORD);
 
       break;
-    case "exploration":
-    case "life":
+    case "travel":
 
       await loginUser(process.env.TRAVEL_USERNAME, process.env.TRAVEL_PASSWORD);
 
@@ -102,19 +99,19 @@ async function downloadImageAsFile(imageURL) {
   }
 }
 
-app.post('/post/:id', async (req, res) => {
-  const type = req.body.id;
+app.post('/post', async (req, res) => {
+
 
   const getRandomImage = async () => {
     try {
       const unsplashAPIKey = process.env.UNSPLASH_API_KEY;
-
+      console.log(type);
       const response = await axios.get('https://api.unsplash.com/photos/random', {
         headers: {
           Authorization: `Client-ID ${unsplashAPIKey}`,
         },
         params: {
-          query: type === 'fitness' ? 'fitness' : (type === 'exploration' || type === 'life') ? 'travel' : 'travel',
+          query: type,
           orientation: 'squarish',
           stats: 'true'
         },
@@ -133,12 +130,15 @@ app.post('/post/:id', async (req, res) => {
   const getRandomQuote = async () => {
     try {
       const apiKey = process.env.NINJA_API_KEY;
+ 
+      
+      console.log(type);
       const response = await axios.get('https://api.api-ninjas.com/v1/quotes', {
         headers: {
           'X-Api-Key': `${apiKey}`,
         },
         params: {
-          category: type === 'fitness' ? 'fitness' : type === 'exploration' ? 'exploration' : 'life',
+          category: type === "travel" ? "experience" : "fitness",
         },
       });
       const data = await response.data[0];
@@ -151,6 +151,8 @@ app.post('/post/:id', async (req, res) => {
   }
   const image = await getRandomImage();
   const quote = await getRandomQuote();
+  console.log(image)
+  console.log(quote);
   if (image && quote) {
 
     await ig.publish.photo({
